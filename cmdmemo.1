@@ -1,0 +1,57 @@
+.\" Manpage for cmdmemo
+.TH CMDMEMO 1 "2025" "Linux Zen Assistance" "Command Reference"
+.SH NAME
+cmdmemo \- gestionnaire de mémos de commandes Linux
+.SH SYNOPSIS
+.B cmdmemo
+[options] [arguments]
+.SH DESCRIPTION
+.B cmdmemo
+est un gestionnaire de mémos technique pour GNU/Linux.  
+Il permet d'ajouter, modifier, supprimer, classer et rechercher des commandes
+dans un fichier TSV lisible et exportable.  
+
+Les catégories sont gérées dynamiquement via un fichier externe.
+.SH OPTIONS
+.TP
+.B -a, --add
+Ajouter une commande.
+.TP
+.B -e, --edit <commande>
+Modifier une commande existante.
+.TP
+.B -d, --delete <commande>
+Supprimer une commande.
+.TP
+.B -s, --search <mot>
+Rechercher une commande ou description.
+.TP
+.B -l, --list <categorie>
+Lister les commandes d'une catégorie.
+.TP
+.B -c, --categories
+Lister les catégories disponibles.
+.TP
+.B -A, --addcateg
+Ajouter une catégorie.
+.TP
+.B -R, --renamecateg <ancienne> <nouvelle>
+Renommer une catégorie.
+.TP
+.B -D, --deletecateg <categorie>
+Supprimer une catégorie (avec réaffectation si nécessaire).
+.TP
+.B -h, --help
+Afficher l'aide.
+.SH FICHIERS
+.TP
+~/.local/share/cmdmemo/cmdmemo.tsv
+Base de données des commandes.
+.TP
+~/.local/share/cmdmemo/cmdmemo.categ
+Liste des catégories.
+.SH AUTEUR
+Développé par Linux Zen Assistance.
+.SH LICENCE
+MIT. Voir le fichier LICENSE pour plus d'informations.
+
