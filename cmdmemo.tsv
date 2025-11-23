@@ -1,0 +1,139 @@
+# vim: set noexpandtab ts=4 :				
+services	root	a2ensite <domaine>.conf	Activer un VirtualHost Apache donné.
+system	root	adduser <user>	Créer un nouvel utilisateur avec son répertoire home.
+system	root	apt	Gestion des paquets : install package, remove package, update; upgrade, search keyword, show package
+system	root	apt-get	Gestion des paquets	: install, remove, dist-upgrade
+system	root	apt-cache	Gestion du cache des paquets	: search, show
+system	user	cat /etc/group | grep <user>	Rechercher les groupes contenant un utilisateur dans /etc/group.
+services	root	certbot --apache -d <domaine> -d www.<domaine>	Obtenir un certificat Let’s Encrypt pour un domaine et son sous-domaine www via le plugin Apache.
+services	user	certbot --version	Afficher la version de Certbot installée.
+system	root	chmod 644 <fichier>	Définir des permissions typiques 644 sur un fichier (rw-r--r--).
+system	root	chmod 755 <dossier>	Définir des permissions typiques 755 sur un répertoire (rwxr-xr-x).
+system	root	chown <user>:<groupe> <fichier>	Changer le propriétaire et le groupe d'un fichier ou répertoire.
+system	user	crontab -e	Éditer la crontab de l'utilisateur courant.
+system	root	crontab -e -u root	Éditer la crontab de l'utilisateur root.
+system	user	crontab -l	Afficher la crontab de l'utilisateur courant.
+network	user	curl	Effectuer des requêtes HTTP/HTTPS en ligne de commande.\nExemple : curl -I https://example.com
+services	user	curl -I https://<domaine>	Tester la réponse HTTP(s) du site (en-têtes uniquement).
+files	root	dd if=/dev/disk of=fichier.img bs=1M status=progress	Créer une image d'un disque brut vers un fichier.\nRemplacer /dev/disk par le périphérique réel (par ex. /dev/sda) et vérifier deux fois la source avant d'exécuter.
+system	root	deluser <user>	Supprimer un utilisateur (sans forcément supprimer son home).
+files	user	df -h	Afficher l'espace disque utilisé et disponible sur tous les systèmes de fichiers.
+system	user	dmesg	Afficher le buffer de messages du noyau avec des horodatages relatifs (depuis le boot).
+system	user	dmesg --human	Afficher les messages du noyau avec un format d'heure et des valeurs plus lisibles (mode human-readable).
+system	user	dmesg --time-format=iso	Afficher les messages du noyau en utilisant un format de date/heure ISO 8601.
+system	user	dmesg -T	Afficher les messages du noyau (dmesg) avec date et heure réelles (conversion des timestamps depuis le boot).\nÉquivalent moderne : dmesg --ctime.
+system	user	dmesg -T | tail -n 50	Afficher les 50 derniers messages du noyau (dmesg) avec horodatage lisible (-T).\nUtile pour diagnostiquer des erreurs matérielles ou noyau récentes.
+system	user	dmesg | grep -i sda	Filtrer les messages du noyau pour un composant spécifique.\nExemples :\ndmesg | grep -i sda\ndmesg | grep -i ata\ndmesg | grep -i usb\ndmesg | grep -i ufw
+system	root	dmidecode --type memory	Afficher les informations générales sur la mémoire (RAM) via dmidecode.\nInstallation : sudo apt install dmidecode
+system	root	dmidecode -t 17	Afficher le détail des modules de RAM (type 17 : Memory Device).
+system	root	dmidecode -t baseboard	Afficher les informations sur la carte mère (baseboard : modèle, fabricant, etc.).
+system	user	dpkg -l | grep linux-	Lister les paquets liés aux noyaux Linux installés.\nPour supprimer d'anciens noyaux (à adapter à la version) :\nsudo apt remove --purge linux-image-6.4*\nsudo apt remove --purge linux-modules-6.4*\nsudo apt remove --purge linux-modules-extra-6.4*
+system	root	dpkg-reconfigure locales	Réconfigurer les locales disponibles et la locale par défaut.
+files	user	du -ah / | sort -h | tail -n 20	Lister les 20 fichiers ou dossiers les plus lourds.\nÀ adapter (chemin, nombre) selon le besoin.
+system	root	du -h --max-depth=1 /var | sort -hr	Afficher la taille des sous-répertoires de /var et les trier par taille décroissante.
+files	user	du -sh /*	Afficher la taille des dossiers à la racine (/).
+files	user	du -sh /var/*	Afficher la taille des dossiers dans /var.
+files	root	du -sh /var/log/*	Afficher la taille des fichiers et dossiers de log dans /var/log.\nUtile pour repérer des logs volumineux.
+system	root	fail2ban-client status	Afficher l'état de Fail2Ban et la liste des jails actives.
+files	root	fdisk -l	Lister les disques et partitions détectés par le système.
+video	user	ffmpeg -i ./video.m4 -ss 00:00:52.11 -to 00:02:26.41 -c:v copy -c:a copy extrait.mp4	Extraire un extrait d'une vidéo entre 00:00:52.11 et 00:02:26.41 sans réencoder (copy) vers le fichier extrait.mp4.
+video	user	ffmpeg -i 01.mov -vf deshake output01.mov	Stabiliser une vidéo en appliquant le filtre deshake sur le fichier 01.mov pour produire output01.mov.
+files	user	find / -type f -size +100M -exec ls -lh {} \;	Lister tous les fichiers de plus de 100 Mo sur le système.\nPermet de repérer rapidement les gros fichiers.
+image	user	"for i in *.jpg; do convert -resize 50% ""$i"" ""re_$i""; done"	Retailler par lot toutes les images JPG du dossier à 50 % de leur taille et créer des fichiers préfixés par re_.
+system	user	free -h	Afficher l'utilisation de la RAM et du swap.
+system	user	get fichier.txt	Télécharger le fichier fichier.txt depuis le serveur via SFTP.
+system	user	getent group <groupe>	Afficher les informations sur un groupe, y compris ses membres.
+services	root	getfacl /var/www/sites/<domaine>/public	Afficher les ACL appliquées sur le répertoire public d'un site.
+system	user	groups <user>	Afficher la liste des groupes auxquels appartient un utilisateur.
+firewall	user	gufw	Ouvrir l'interface graphique de configuration du pare-feu UFW.
+files	user	gzip	Compresser ou décompresser des fichiers au format gzip.
+system	user	htop	Version améliorée de top (interface plus lisible, navigation au clavier).\nInstallation : sudo apt install htop
+system	user	id <user>	Afficher l'UID, GID et les groupes d'un utilisateur.
+files	user	iotop -o	Afficher en temps réel les processus effectuant des entrées/sorties disque.\nOption -o : n'afficher que les processus ayant une activité I/O.\nInstallation : sudo apt install iotop
+system	root	journalctl --vacuum-time=10d	Supprimer les journaux systemd plus anciens que 10 jours.
+system	root	journalctl -k	Afficher les journaux du noyau (équivalent dmesg) avec date et heure réelles via journalctl.
+system	root	"journalctl -k --since ""10 minutes ago"""	Afficher les journaux du noyau depuis un intervalle de temps donné (ici les 10 dernières minutes).
+system	root	journalctl -k -n 50	Afficher les 50 dernières lignes des journaux du noyau.\nAdapter le nombre de lignes avec -n.
+system	root	journalctl -kf	Suivre en temps réel les journaux du noyau (mode tail -f).
+system	root	journalctl -p err -k	Afficher uniquement les messages du noyau de priorité err (erreur) ou plus grave.
+system	root	journalctl -u <service> -n 100 --no-pager	Afficher les 100 dernières lignes de log pour un service donné, sans pagination.
+system	root	journalctl -u <service> -n 50	Afficher les 50 dernières lignes de logs pour un service donné.
+system	root	journalctl -xe	Afficher les journaux système en mode détaillé (tous services, erreurs récentes, kernel inclus).
+system	user	locale	Afficher les locales actuellement configurées sur le système.
+system	user	logrotate -f /etc/logrotate.conf	Forcer une rotation des logs selon la configuration logrotate globale.
+system	user	ls	Afficher la liste des fichiers dans la session SFTP.\n(Utile pour vérifier l'accès.)
+system	root	ls /etc/cron.d/	Lister les tâches cron définies dans /etc/cron.d.
+system	root	lshw -class memory	Afficher les informations sur la mémoire via lshw (banques, taille, etc.).\nInstallation : sudo apt install lshw
+network	user	lsof -i :80	Afficher les processus qui utilisent le port 80 (HTTP).
+video	user	mencoder source.mov -o target.avi -oac pcm -ovc lavc -vf rotate=2	Convertir une vidéo en AVI en appliquant une rotation de 180° (rotate=2) avec encodage vidéo lavc et audio PCM.
+system	root	mount -a	Monter toutes les entrées définies dans /etc/fstab (utile après modification de fstab).
+backup	root	mount /dev/sdb1 /mnt/usb	Monter un disque USB sur /mnt/usb.
+services	user	mysql -u <db_user> -p <db_name>	Se connecter à une base MariaDB spécifique avec un utilisateur donné.
+services	root	namei -l /var/www/sites/<domaine>	Inspecter la chaîne de permissions et propriétaires pour tout le chemin d'un site.
+system	user	namei -l <chemin>	Afficher la chaîne de propriétaires et permissions pour chaque composant d'un chemin.
+system	user	ncdu	Explorer l'utilisation de l'espace disque de manière interactive.\nInstallation : sudo apt install ncdu
+network	user	netstat -tulpen	Lister les connexions réseau et ports en écoute avec PID et utilisateur.\nSur les systèmes récents, ss est préféré.
+network	user	nmap	Scanner les ports d'une machine ou d'un réseau.\nCommande de base : nmap <hôte>
+audio	user	pactl load-module module-loopback latency_msec=1	Acheminer le microphone vers les haut-parleurs en créant une boucle audio (loopback) avec faible latence.\nPour arrêter : pactl unload-module module-loopback
+system	root	passwd <user>	Modifier le mot de passe d'un utilisateur.
+services	user	php -v	Afficher la version de PHP CLI et les informations de build.
+network	user	ping <domaine>	Tester la connectivité réseau vers un domaine ou IP avec ICMP.
+system	user	ps aux --sort=-%cpu | head	Afficher les processus les plus gourmands en CPU (top CPU).
+system	user	ps aux --sort=-%mem | head	Afficher les processus les plus gourmands en mémoire (top RAM).
+system	user	ps aux | grep <service>	Lister les processus et filtrer sur un service ou motif donné.
+system	user	put index.html	Téléverser le fichier index.html vers le répertoire courant en SFTP.
+system	root	reboot	Redémarrer le serveur.
+backup	user	rsync	Synchroniser des fichiers et répertoires localement ou via SSH.\nExemple : rsync -a source/ dest/
+backup	root	rsync -a /var/backups/ /mnt/usb/VPS/	Synchroniser les sauvegardes locales vers un répertoire VPS sur le disque USB.
+system	user	setfacl	Gérer les ACL (droits avancés) sur fichiers et répertoires.
+system	user	sftp <user_sftp>@<IP_VPS>	Tester la connexion SFTP à un utilisateur chrooté.
+files	root	smartctl -a /dev/sda	Afficher l'état SMART détaillé du disque /dev/sda (diagnostic santé).\nInstallation : sudo apt install smartmontools
+network	user	ss -tulpn	Lister les ports TCP/UDP en écoute et les processus associés.
+system	user	ssh <user>@<IP_VPS>	Se connecter en SSH au VPS avec l'utilisateur personnel nouvellement créé.
+system	user	ssh debian@<IP_VPS>	Se connecter en SSH au VPS avec l'utilisateur initial debian fourni par l'hébergeur.
+system	user	swapon --show	Lister les swaps actifs.
+system	root	sysctl -w kernel.dmesg_restrict=0	"Autoriser l'exécution de dmesg par les utilisateurs (désactiver la restriction kernel.dmesg_restrict).\nPour rendre ce réglage persistant après redémarrage :\necho ""kernel.dmesg_restrict=0"" | sudo tee -a /etc/sysctl.d/10-local.conf"
+services	user	systemctl --failed	Lister les unités systemd en échec.
+services	root	systemctl disable <service>	Désactiver le démarrage automatique d'un service au boot.
+services	root	systemctl enable --now <service>	Activer un service au démarrage et le démarrer immédiatement.
+system	root	systemctl enable --now fail2ban	Activer Fail2Ban au démarrage et démarrer immédiatement le service.
+services	root	systemctl enable <service>	Activer un service pour qu'il démarre automatiquement au boot.
+system	root	systemctl reload <service>	services/systemd	Recharger la configuration d'un service
+services	user	udo systemctl restart <service>	Redémarrer un service.
+system	root	systemctl restart systemd-timesyncd	Redémarrer le service de synchronisation de l'heure systemd-timesyncd.
+services	root	systemctl start <service>	Démarrer immédiatement un service.
+services	user	systemctl status <service>	Afficher l'état détaillé d'un service systemd.
+services	root	systemctl status <service>	Afficher l'état d'un service systemd.
+system	root	tail -f /var/log/auth.log	Suivre en temps réel le journal d'authentification (auth.log).
+system	root	tail -f /var/log/syslog	Suivre en temps réel le journal système principal (syslog).
+system	user	tail -f /var/log/syslog	Suivre en temps réel le journal système.
+files	user	tar	Créer ou extraire des archives tar.\nExemple : tar -czf archive.tar.gz dossier/
+backup	root	tar -C /etc -czf ~/backup-etc-$(date +%F).tar.gz .	Sauvegarder le contenu de /etc dans une archive tar.gz datée dans le home.
+backup	root	tar -C /home -czf ~/backup-home-$(date +%F).tar.gz .	Sauvegarder le contenu de /home dans une archive tar.gz datée dans le home.
+system	user	timedatectl	Afficher l'état de l'heure système, du fuseau horaire et de la synchronisation NTP.
+system	root	timedatectl set-ntp true	Activer la synchronisation NTP via systemd-timesyncd.
+system	user	timedatectl set-ntp true	Activer la synchronisation NTP (si pas déjà fait).
+system	root	timedatectl set-timezone Europe/Paris	Définir le fuseau horaire du système sur Europe/Paris.
+system	user	timedatectl status	Afficher l'état de la date, heure, fuseau horaire et NTP.
+system	user	top	Surveillance des processus en temps réel (CPU, RAM, load average).
+network	user	traceroute <domaine>	Tracer le chemin réseau (sauts/hops) jusqu'à un domaine ou IP.
+firewall	root	ufw allow 22/tcp	Autoriser le port SSH (22/tcp) dans UFW.
+firewall	root	ufw allow 80,443/tcp	Autoriser les ports HTTP (80) et HTTPS (443) dans UFW.
+firewall	root	ufw allow OpenSSH	Autoriser le service OpenSSH à travers le pare-feu UFW.
+firewall	root	ufw default allow outgoing	Définir la politique par défaut des sorties UFW sur allow (autoriser le trafic sortant).
+firewall	root	ufw default deny incoming	Définir la politique par défaut des entrées UFW sur deny (bloquer tout ce qui n'est pas explicitement autorisé).
+firewall	root	ufw enable	Activer le pare-feu UFW (Uncomplicated Firewall).
+firewall	root	ufw status	Afficher l'état du pare-feu UFW et la liste des règles.
+firewall	root	ufw status verbose	Afficher l'état détaillé de UFW et la liste des règles actives.
+system	user	umask	Afficher ou définir le umask (masque de permissions par défaut à la création de fichiers).
+backup	root	umount /mnt/usb	Démonter proprement le disque USB.
+system	user	uname -a	Afficher des informations complètes sur le noyau et le système (version, architecture, hostname).
+system	root	update-alternatives --config editor	Définir l'éditeur de texte par défaut utilisé par sudo et d'autres outils.
+system	user	uptime	Afficher la charge système (load average) et le temps depuis le dernier démarrage.
+system	root	userdel -r <user>	Supprimer un utilisateur et son répertoire home.
+system	root	usermod -aG <groupe> <user>	Ajouter un utilisateur à un groupe donné.
+system	root	usermod -aG sudo <user>	Ajouter un utilisateur existant au groupe sudo pour lui donner les droits d'administration.
+system	root	visudo	Éditer la configuration sudoers de manière sécurisée.
+network	user	wget	Télécharger des fichiers via HTTP/HTTPS/FTP.\nExemple : wget https://example.com/fichier.tar.gz
+system	root	whoami	Vérifier que sudo fonctionne correctement (ça doit afficher root).
+system	user	lsb_release -a	Afficher la version du système d'exploitation
