@@ -1,136 +1,69 @@
-<h1 align="center">cmdmemo</h1> <p align="center"><strong>Gestionnaire de mémos de commandes Linux</strong><br> Un outil Bash simple, propre et efficace pour organiser vos commandes Linux en catégories.</p> <p align="center"> <img src="https://img.shields.io/badge/shell-bash-green" /> <img src="https://img.shields.io/badge/status-stable-brightgreen" /> <img src="https://img.shields.io/badge/license-MIT-blue" /> </p>
-📌 Présentation
+<p align="right">🇫🇷 <a href="README.fr.md">Version française</a></p>
 
-cmdmemo est un gestionnaire de mémos technique pour GNU/Linux, basé sur un fichier TSV minimaliste et lisible.
-Il permet de stocker, rechercher et classer vos commandes préférées, par catégorie, niveau (root/user), commande et description.
+<h1 align="center">cmd-memo</h1>
+<p align="center">
+  <strong>Linux command memo manager</strong><br>
+  A simple, clean and efficient Bash tool to organize your Linux commands by categories.
+</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/shell-bash-green" />
+  <img src="https://img.shields.io/badge/status-stable-brightgreen" />
+  <img src="https://img.shields.io/badge/license-MIT-blue" />
+</p>
 
-Entièrement écrit en Bash, il est :
+---
 
-✔️ simple
+## 📌 Overview
 
-✔️ portable
+**cmd-memo** is a technical memo manager for GNU/Linux, based on a minimalist and human-readable TSV file.
 
-✔️ rapide
+It lets you store, search and organize your favorite commands by:
 
-✔️ modifiable
+- category  
+- level (root/user)  
+- command  
+- description  
 
-✔️ sans dépendances
+Written entirely in Bash, it is:
 
-✔️ adapté aux débutants comme aux utilisateurs avancés
+- ✔️ simple  
+- ✔️ portable  
+- ✔️ fast  
+- ✔️ easy to modify  
+- ✔️ dependency-free  
+- ✔️ suitable for both beginners and advanced users  
 
-C’est un outil pensé pour les administrateurs systèmes, formateurs, techniciens, ou toute personne qui veut garder une mémoire technique propre et consultable instantanément.
+It is designed for system administrators, trainers, technicians, and anyone who wants to keep a clean, instantly searchable technical memory.
 
-🗂️ Fonctionnalités principales
+---
 
-Ajouter une nouvelle commande (add)
+## 🗂️ Main features
 
-Modifier une commande existante (edit)
+- Add a new command (`add`)
+- Edit an existing command (`edit`)
+- Delete a command (`delete`)
+- Search across all commands (`search`)
+- List all commands in a category (`list`)
 
-Supprimer une commande (delete)
+**Dynamic category management:**
 
-Rechercher dans toutes les commandes (search)
+- Add a category (`addcateg`)
+- Rename a category (`renamecateg`)
+- Delete a category with reassignment (`deletecateg`)
 
-Lister les commandes d'une catégorie (list)
+**Data files:**
 
-Gestion dynamique des catégories :
+- Human-readable TSV file  
+- External category file (`cmd-memo.categ`)  
+- Zero external dependencies, no exotic Bash features
 
-Ajouter une catégorie (addcateg)
+---
 
-Renommer une catégorie (renamecateg)
+## 📦 Installation
 
-Supprimer une catégorie avec réaffectation (deletecateg)
+### 🔧 Manual (simple) method
 
-Fichier TSV lisible indépendamment
-
-Fichier de catégories externe (cmdmemo.categ)
-
-Zéro dépendance, aucun bashisme exotique
-
-📦 Installation
-🔧 Méthode manuelle (simple)
-git clone https://github.com/linux-zen-assistance/cmdmemo.git
-cd cmdmemo
-chmod +x cmdmemo.sh
-
-
-Ajoutez ensuite à votre ~/.bashrc :
-
-alias cm="$HOME/Dev/GitHub/linux-zen-assistance/cmdmemo/cmdmemo.sh"
-
-
-Rechargez :
-
-source ~/.bashrc
-
-
-Vous pouvez maintenant utiliser :
-
-cm -c
-cm -s ssh
-cm -a
-
-🚀 Utilisation rapide
-Lister les catégories
-cm -c
-
-Lister les commandes d’une catégorie
-cm -l system
-
-Ajouter une commande
-cm -a
-
-Rechercher
-cm -s apache
-
-Ajouter une catégorie
-cm -A
-
-Renommer une catégorie
-cm -R oldname newname
-
-Supprimer une catégorie
-cm -D files
-
-🧱 Structure des fichiers
-cmdmemo/
- ├─ cmdmemo.sh          → Script principal
- ├─ cmdmemo.tsv         → Base de données TSV
- ├─ cmdmemo.categ       → Liste dynamique des catégories
- └─ README.md           → Documentation
-
-
-Le format du TSV :
-
-categorie<TAB>level<TAB>commande<TAB>description
-
-
-Exemple :
-
-system	user	ls	Afficher le contenu d'un répertoire
-network	root	ip a	Afficher la configuration réseau
-
-🛠️ Contribuer
-
-Les contributions sont les bienvenues :
-
-ajout de fonctionnalités
-
-amélioration du code
-
-suggestions
-
-corrections
-
-documentation
-
-Forkez le dépôt et ouvrez une pull request depuis votre compte GitHub.
-
-🔒 Licence
-
-Ce projet est distribué sous licence MIT.
-Vous êtes libre de l’utiliser, le modifier et le redistribuer.
-
-👤 Auteur
-
-Projet développé et maintenu par Linux Zen Assistance
-https://linuxzenassistance.com
+```bash
+git clone https://github.com/linuxzenassistance/cmd-memo.git
+cd cmd-memo
+chmod +x cmd-memo.sh

@@ -1,40 +1,86 @@
 #!/usr/bin/env bash
+#
+# Installer for cmd-memo
+# - Installs the script and data files into ~/.local/bin
+# - Adds a convenient "cm" alias to ~/.bashrc (if not already present)
+#
 
-set -e
+set -euo pipefail
 
-echo "=== Installation de cmdmemo ==="
+APP_NAME="cmd-memo"
+INSTALL_DIR="$HOME/.local/bin"
 
-# Répertoires d'installation
-BIN_DIR="$HOME/.local/bin"
-DATA_DIR="$HOME/.local/share/cmdmemo"
+echo "=== Installing ${APP_NAME} ==="
 
-echo "Création des répertoires..."
-mkdir -p "$BIN_DIR"
-mkdir -p "$DATA_DIR"
+# Determine source directory (where this install.sh lives)
+SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo "Installation du script principal..."
-cp cmdmemo.sh "$BIN_DIR"/cmdmemo
-chmod +x "$BIN_DIR"/cmdmemo
+echo "Source directory : $SOURCE_DIR"
+echo "Install directory: $INSTALL_DIR"
+echo
 
-echo "Installation des fichiers de données..."
-cp cmdmemo.tsv "$DATA_DIR"/
-cp cmdmemo.categ "$DATA_DIR"/
+echo "Creating install directory if needed..."
+mkdir -p "$INSTALL_DIR"
 
-echo "Installation terminée."
+echo "Installing main script..."
+cp "$SOURCE_DIR/${APP_NAME}.sh" "$INSTALL_DIR/$APP_NAME"
+chmod +x "$INSTALL_DIR/$APP_NAME"
 
-# Suggestion d'alias pour le confort
-if ! grep -q "alias cm=" "$HOME/.bashrc"; then
-  echo 'alias cm="~/.local/bin/cmdmemo"' >> "$HOME/.bashrc"
-  echo 'Alias ajouté à ~/.bashrc'
+# Install data files (but do not overwrite existing ones)
+DATA_TSV="${INSTALL_DIR}/${APP_NAME}.tsv"
+DATA_CATEG="${INSTALL_DIR}/${APP_NAME}.categ"
+
+echo
+echo "Installing data files..."
+
+if [[ -f "$DATA_TSV" ]]; then
+  echo " - Keeping existing ${APP_NAME}.tsv"
 else
-  echo "Alias déjà présent dans ~/.bashrc"
+  echo " - Installing default ${APP_NAME}.tsv"
+  cp "$SOURCE_DIR/${APP_NAME}.tsv" "$DATA_TSV"
+fi
+
+if [[ -f "$DATA_CATEG" ]]; then
+  echo " - Keeping existing ${APP_NAME}.categ"
+else
+  echo " - Installing default ${APP_NAME}.categ"
+  cp "$SOURCE_DIR/${APP_NAME}.categ" "$DATA_CATEG"
 fi
 
 echo
-echo "⚠️  IMPORTANT : rechargez votre shell avec :"
-echo "    source ~/.bashrc"
-echo
-echo "Vous pouvez maintenant lancer :"
-echo "    cm -c"
-echo "    cm -a"
 
+# Add alias to ~/.bashrc if not already present
+BASHRC="$HOME/.bashrc"
+ALIAS_LINE='alias cm="$HOME/.local/bin/cmd-memo"'
+
+if [[ -f "$BASHRC" ]] && grep -q 'alias cm=' "$BASHRC"; then
+  echo "Alias 'cm' already defined in ~/.bashrc (not modified)."
+else
+  echo "Adding 'cm' alias to ~/.bashrc..."
+  {
+    echo
+    echo "# cmd-memo command memo manager"
+    echo "$ALIAS_LINE"
+  } >> "$BASHRC"
+  echo "Alias added to ~/.bashrc"
+fi
+
+echo
+
+# Check if INSTALL_DIR is in PATH
+if ! echo "$PATH" | tr ':' '\n' | grep -qx "$INSTALL_DIR"; then
+  echo "⚠️  Warning: $INSTALL_DIR is not in your PATH."
+  echo "    You may want to add this line to your shell configuration:"
+  echo "      export PATH=\"\$HOME/.local/bin:\$PATH\""
+  echo
+fi
+
+echo "Installation completed."
+echo
+echo "Next steps:"
+echo "  1) Reload your shell configuration:"
+echo "       source ~/.bashrc"
+echo "  2) Use cmd-memo with:"
+echo "       cm -c"
+echo "       cm -s ssh"
+echo "       cm -a"

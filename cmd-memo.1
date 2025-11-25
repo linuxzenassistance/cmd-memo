@@ -1,0 +1,138 @@
+.\" Manpage for cmd-memo
+.TH CMD-MEMO 1 "2025" "Linux Zen Assistance" "Command Memo Manager"
+
+.SH NAME
+cmd-memo \- Command memo manager for Linux
+
+.SH SYNOPSIS
+.B cmd-memo
+.I <command> [arguments]
+
+.SH DESCRIPTION
+.B cmd-memo
+is a lightweight and efficient Bash tool that allows you to store, organize and search your Linux commands.
+It uses a clean TSV (Tab-Separated Values) file to maintain a technical memory that is easy to browse and update.
+
+The tool supports:
+.IP \[bu] 2
+Adding, editing and deleting entries
+.IP \[bu] 2
+Searching across categories, command names, levels and descriptions
+.IP \[bu] 2
+Dynamic category management (add, rename, delete)
+.IP \[bu] 2
+A readable and versionable data format without external dependencies
+
+cmd-memo is part of the Linux Zen Assistance toolkit.
+
+.SH COMMANDS
+
+.TP
+.B categ | -c
+List all categories present in the category file.
+
+.TP
+.B list | -l <category>
+List all commands inside a category.
+
+.TP
+.B search | -s <text>
+Search for a string in category, level, command or detail fields.
+
+.TP
+.B add | -a
+Add a new memo entry (interactive mode).
+
+.TP
+.B edit | -e <command>
+Edit an entry by exact command name.
+
+.TP
+.B delete | -d <command>
+Delete an entry by exact command name.
+
+.TP
+.B addcateg | -A
+Add a new category.
+
+.TP
+.B renamecateg | -R <old> <new>
+Rename a category.
+
+.TP
+.B deletecateg | -D <category>
+Delete a category.  
+If it contains commands, they must be reassigned to another category.
+
+.TP
+.B help | -h | --help
+Display help message.
+
+.SH DATA FILES
+
+.TP
+.B cmd-memo.tsv
+Main TSV database containing all memo entries.
+
+.TP
+.B cmd-memo.categ
+List of valid categories used by the program.
+
+Both files are stored in the same directory as the script when using manual installation.
+
+.SH TSV FORMAT
+
+Each entry consists of four fields separated by TAB characters:
+
+.IP
+category<TAB>level<TAB>command<TAB>detail
+
+.IP
+\fBcategory\fR: logical group (system, network, backup...)  
+\fBlevel\fR: "root" or "user"  
+\fBcommand\fR: the actual command (unique identifier)  
+\fBdetail\fR: description or comment
+
+Example entry:
+
+.IP
+system<TAB>user<TAB>ls<TAB>List directory contents
+
+.SH EXAMPLES
+
+.TP
+List categories:
+.IP
+.B cmd-memo -c
+
+.TP
+List commands in "system":
+.IP
+.B cmd-memo -l system
+
+.TP
+Search for commands related to SSH:
+.IP
+.B cmd-memo -s ssh
+
+.TP
+Add a new entry:
+.IP
+.B cmd-memo -a
+
+.TP
+Rename a category:
+.IP
+.B cmd-memo -R oldname newname
+
+.SH AUTHOR
+Written and maintained by Linux Zen Assistance.  
+Project URL:
+.IP
+https://github.com/linuxzenassistance/cmd-memo
+
+.SH LICENSE
+cmd-memo is distributed under the MIT license.
+
+.SH SEE ALSO
+.B bash(1)

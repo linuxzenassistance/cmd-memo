@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# cmdmemo.sh – gestionnaire de mémos de commandes
+# cmd-memo.sh – gestionnaire de mémos de commandes
 # Format TSV (tabulations réelles) :
 #   category<TAB>root|user<TAB>command<TAB>detail
 #
@@ -9,10 +9,10 @@ set -euo pipefail
 
 # Répertoire du script et fichier TSV associé
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CMD_FILE="${SCRIPT_DIR}/cmdmemo.tsv"
+CMD_FILE="${SCRIPT_DIR}/cmd-memo.tsv"
 
 # Fichier des catégories
-CAT_FILE="${SCRIPT_DIR}/cmdmemo.categ"
+CAT_FILE="${SCRIPT_DIR}/cmd-memo.categ"
 
 # Catégories par défaut (utilisées pour initialiser le fichier si absent)
 DEFAULT_CATEGORIES=(
@@ -33,7 +33,7 @@ VALID_CATEGORIES=()
 
 ensure_cat_file_exists() {
   if [[ ! -f "$CAT_FILE" ]]; then
-    printf '# Liste des catégories pour cmdmemo\n' >"$CAT_FILE"
+    printf '# Category list for cmd-memo\n' >"$CAT_FILE"
     local c
     for c in "${DEFAULT_CATEGORIES[@]}"; do
       printf '%s\n' "$c" >>"$CAT_FILE"
@@ -49,6 +49,21 @@ load_categories() {
   )
 }
 
+cmd_categ() {
+  # Liste les catégories disponibles à partir du fichier de catégories
+  load_categories
+
+  if (( ${#VALID_CATEGORIES[@]} == 0 )); then
+    echo "No category available."
+    return 0
+  fi
+
+  echo "Available categories:"
+  for c in "${VALID_CATEGORIES[@]}"; do
+    printf ' - %s\n' "$c"
+  done
+}
+
 # --------------------------------------------------------------------
 # Utilitaires
 # --------------------------------------------------------------------
@@ -56,27 +71,26 @@ load_categories() {
 usage() {
   cat <<EOF
 ***************************************************************
-Bienvenue dans cmdmemo
-Gestionnaire de memos de commandes
-Création  LINUX ZEN ASSISTANCE - https://linuxzenassistance.fr
+Welcome to Command memo manager
+Created by LINUX ZEN ASSISTANCE - https://linuxzenassistance.fr
 ***************************************************************
 
-Usage : $(basename "$0") <commande> [arguments]
+Usage: $(basename "$0") <command> [arguments]
 
-Commandes :
- categ (-c)           Lister les catégories présentes dans le fichier
-  list  (-l) <categ>   Lister les commandes d'une catégorie
-  search(-s) <texte>   Rechercher dans catégorie / niveau / commande / détail
-  add   (-a)           Ajouter une nouvelle entrée
-  edit  (-e) <cmd>     Modifier une entrée par commande exacte
-  delete(-d) <cmd>     Supprimer une entrée par commande exacte
-  addcateg   (-A)      Ajouter une catégorie
-  renamecateg(-R)      Renommer une catégorie
-  deletecateg(-D)      Supprimer une catégorie (avec réaffectation)
-  help                 Afficher cette aide
+Commands:
+ categ (-c)           List categories present in the file
+  list  (-l) <categ>   List commands in a category
+  search(-s) <text>   Search in category / level / command / detail
+  add   (-a)           Add a new entry
+  edit  (-e) <cmd>     Edit an entry by exact command
+  delete(-d) <cmd>     Delete an entry by exact command
+  addcateg   (-A)      Add a category
+  renamecateg(-R)      Rename a category
+  deletecateg(-D)      Delete a category (with reassignment)
+  help                 Show this help
 
-Le fichier de données est : ${CMD_FILE}
-Format TSV : category<TAB>root|user<TAB>command<TAB>detail
+Data file: ${CMD_FILE}
+TSV format: category<TAB>root|user<TAB>command<TAB>detail
 EOF
 }
 
@@ -182,8 +196,8 @@ cmd_list() {
   local cat="${1:-}"
 
   if [[ -z "$cat" ]]; then
-    echo "Erreur : il faut préciser une catégorie." >&2
-    echo "Utilisation : $(basename "$0") list <categ>" >&2
+    echo "Error: you must specify a category." >&2
+    echo "Usage: $(basename "$0") list <categ>" >&2
     exit 1
   fi
 
@@ -216,9 +230,9 @@ cmd_list() {
     done
 
     if (( exists )); then
-      echo "Aucune commande dans la catégorie \"$cat\""
+      echo "No command in category \"$cat\""
     else
-      echo "La catégorie \"$cat\" n'existe pas"
+      echo "Category \"$cat\" does not exist"
     fi
   fi
 }
@@ -228,8 +242,8 @@ cmd_search() {
   ensure_file_exists
   local query="${1:-}"
   if [[ -z "$query" ]]; then
-    echo "Erreur : il faut préciser un texte de recherche." >&2
-    echo "Utilisation : $(basename "$0") search <texte>" >&2
+    echo "Error: you must specify a search text." >&2
+    echo "Usage: $(basename "$0") search <text>" >&2
     exit 1
   fi
 
@@ -259,7 +273,7 @@ cmd_search() {
   for_each_entry search_callback
 
   if (( ! found )); then
-    echo "Aucun résultat pour : $query"
+    echo "No result for: $query"
   fi
 }
 
@@ -267,13 +281,13 @@ cmd_search() {
 cmd_add() {
   ensure_file_exists
 
-  echo "=== Ajout d'une nouvelle commande ==="
+  echo "=== Adding a new command ==="
 
   ##
   ## Sélection de la catégorie via un petit menu
   ##
   load_categories
-  echo "Choisissez une catégorie :"
+  echo "Choose a category:"
   local i=1
   local cat
   for cat in "${VALID_CATEGORIES[@]}"; do
@@ -282,12 +296,12 @@ cmd_add() {
   done
 
   local choice
-  read -rp "Numéro (1-${#VALID_CATEGORIES[@]}) [1] : " choice
+  read -rp "Number (1-${#VALID_CATEGORIES[@]}) [1]: " choice
   choice="${choice:-1}"
 
   # Sécurité : vérifier numéro valide
   if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#VALID_CATEGORIES[@]} )); then
-    echo "Numéro invalide."
+    echo "Invalid number."
     exit 1
   fi
 
@@ -295,36 +309,36 @@ cmd_add() {
   local category="${VALID_CATEGORIES[$index]}"
 
   if ! is_valid_category "$category"; then
-    echo "Catégorie inconnue : $category" >&2
-    echo "Catégories valides : ${VALID_CATEGORIES[*]}" >&2
+    echo "Unknown category: $category" >&2
+    echo "Valid categories: ${VALID_CATEGORIES[*]}" >&2
     exit 1
   fi
 
   # Niveau root/user
   local level
-  read -rp "Niveau (root/user) [user] : " level
+  read -rp "Level (root/user) [user]: " level
   level="${level:-user}"
   if [[ "$level" != "root" && "$level" != "user" ]]; then
-    echo "Niveau invalide : $level (attendu : root ou user)" >&2
+    echo "Invalid level: $level (expected: root or user)" >&2
     exit 1
   fi
 
   # Commande (clé)
   local command
-  read -rp "Commande (sans sudo) : " command
+  read -rp "Command (without sudo): " command
   if [[ -z "$command" ]]; then
-    echo "Erreur : la commande ne peut pas être vide." >&2
+    echo "Error: the command cannot be empty." >&2
     exit 1
   fi
 
   if command_exists "$command"; then
-    echo "Erreur : une entrée existe déjà pour cette commande, ajout refusé." >&2
+    echo "Error: an entry already exists for this command, add refused." >&2
     exit 1
   fi
 
   # Détail (une ligne pour l'instant ; on pourra gérer du multi-ligne plus tard)
   local detail
-  read -rp "Détail (commentaire court) : " detail
+  read -rp "Detail (short comment): " detail
 
   # On évite les tabulations dans le détail
   detail="${detail//	/    }"
@@ -332,7 +346,7 @@ cmd_add() {
   # Ajout à la fin du fichier
   printf '%s\t%s\t%s\t%s\n' "$category" "$level" "$command" "$detail" >>"$CMD_FILE"
 
-  echo "Entrée ajoutée."
+  echo "Entry added."
 }
 
 # 5) delete <commande> : suppression par nom de commande exact
@@ -341,8 +355,8 @@ cmd_delete() {
   local needle="${1:-}"
 
   if [[ -z "$needle" ]]; then
-    echo "Erreur : il faut préciser la commande exacte à supprimer." >&2
-    echo "Utilisation : $(basename "$0") delete <commande>" >&2
+    echo "Error: you must specify the exact command to delete." >&2
+    echo "Usage: $(basename "$0") delete <command>" >&2
     exit 1
   fi
 
@@ -381,9 +395,9 @@ cmd_delete() {
   mv "$tmp" "$CMD_FILE"
 
   if (( deleted )); then
-    echo "supprimé"
+    echo "deleted"
   else
-    echo "non trouvé"
+    echo "not found"
   fi
 }
 
@@ -393,27 +407,27 @@ cmd_edit() {
   local needle="${1:-}"
 
   if [[ -z "$needle" ]]; then
-    echo "Erreur : il faut préciser la commande exacte à modifier." >&2
-    echo "Utilisation : $(basename "$0") edit <commande>" >&2
+    echo "Error: you must specify the exact command to edit." >&2
+    echo "Usage: $(basename "$0") edit <command>" >&2
     exit 1
   fi
 
   local line
   if ! line="$(find_line_by_command "$needle")"; then
-    echo "Commande \"$needle\" introuvable." >&2
+    echo "Command \"$needle\" not found." >&2
     exit 1
   fi
 
   local old_category old_level old_command old_detail
   IFS=$'\t' read -r old_category old_level old_command old_detail <<<"$line"
 
-  echo "=== Modification d'une commande ==="
-  echo "Commande actuelle : $old_command"
+  echo "=== Editing a command ==="
+  echo "Current command: $old_command"
 
   # --- Catégorie ---
-  echo "Catégorie actuelle : $old_category"
+  echo "Current category: $old_category"
   load_categories
-  echo "Choisissez une catégorie :"
+  echo "Choose a category:"
   local i=1
   local cat
   for cat in "${VALID_CATEGORIES[@]}"; do
@@ -422,12 +436,12 @@ cmd_edit() {
   done
 
   local choice
-  read -rp "Numéro (1-${#VALID_CATEGORIES[@]}) [garder ${old_category}] : " choice
+  read -rp "Number (1-${#VALID_CATEGORIES[@]}) [keep ${old_category}]: " choice
 
   local new_category="$old_category"
   if [[ -n "$choice" ]]; then
     if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#VALID_CATEGORIES[@]} )); then
-      echo "Numéro invalide."
+      echo "Invalid number."
       exit 1
     fi
     local index=$((choice-1))
@@ -435,40 +449,40 @@ cmd_edit() {
   fi
 
   if ! is_valid_category "$new_category"; then
-    echo "Catégorie inconnue : $new_category" >&2
-    echo "Catégories valides : ${VALID_CATEGORIES[*]}" >&2
+    echo "Unknown category: $new_category" >&2
+    echo "Valid categories: ${VALID_CATEGORIES[*]}" >&2
     exit 1
   fi
 
   # --- Niveau root/user ---
   local new_level
-  read -rp "Niveau (root/user) [${old_level}] : " new_level
+  read -rp "Level (root/user) [${old_level}]: " new_level
   new_level="${new_level:-$old_level}"
   if [[ "$new_level" != "root" && "$new_level" != "user" ]]; then
-    echo "Niveau invalide : $new_level (attendu : root ou user)" >&2
+    echo "Invalid level: $new_level (expected: root or user)" >&2
     exit 1
   fi
 
   # --- Commande ---
   local new_command
-  read -rp "Commande (sans sudo) [${old_command}] : " new_command
+  read -rp "Command (without sudo) [${old_command}]: " new_command
   new_command="${new_command:-$old_command}"
   if [[ -z "$new_command" ]]; then
-    echo "Erreur : la commande ne peut pas être vide." >&2
+    echo "Error: the command cannot be empty." >&2
     exit 1
   fi
 
   if [[ "$new_command" != "$old_command" ]] && command_exists "$new_command"; then
-    echo "Erreur : une entrée existe déjà pour cette commande, modification refusée." >&2
+    echo "Error: an entry already exists for this command, edit refused." >&2
     exit 1
   fi
 
   # --- Détail ---
-  local prompt_detail="Détail (commentaire court)"
+  local prompt_detail="Detail (short comment)"
   if [[ -n "$old_detail" ]]; then
     prompt_detail+=" [${old_detail}]"
   fi
-  prompt_detail+=" : "
+  prompt_detail+=": "
   local new_detail
   read -rp "$prompt_detail" new_detail
   new_detail="${new_detail:-$old_detail}"
@@ -509,9 +523,9 @@ cmd_edit() {
   mv "$tmp" "$CMD_FILE"
 
   if (( edited )); then
-    echo "modifié"
+    echo "changed"
   else
-    echo "Aucune modification effectuée." >&2
+    echo "No modification performed." >&2
   fi
 }
 
@@ -521,16 +535,16 @@ cmd_addcateg() {
   load_categories
 
   local new_cat
-  read -rp "Nom de la nouvelle catégorie : " new_cat
+  read -rp "New category name: " new_cat
 
   if [[ -z "$new_cat" ]]; then
-    echo "Erreur : la catégorie ne peut pas être vide." >&2
+    echo "Error: category cannot be empty." >&2
     exit 1
   fi
 
   # On interdit juste la tabulation dans le nom
   if [[ "$new_cat" == *$'\t'* ]]; then
-    echo "Erreur : la catégorie ne doit pas contenir de tabulation." >&2
+    echo "Error: category must not contain a tab character." >&2
     exit 1
   fi
 
@@ -538,7 +552,7 @@ cmd_addcateg() {
   local c
   for c in "${VALID_CATEGORIES[@]}"; do
     if [[ "$c" == "$new_cat" ]]; then
-      echo "Erreur : cette catégorie existe déjà." >&2
+      echo "Error: this category already exists." >&2
       exit 1
     fi
   done
@@ -548,11 +562,11 @@ cmd_addcateg() {
 
   local tmp
   tmp="$(mktemp)"
-  printf '# Liste des catégories pour cmdmemo\n' >"$tmp"
+  printf '# Category list for cmd-memo\n' >"$tmp"
   printf '%s\n' "${VALID_CATEGORIES[@]}" | sort -u >>"$tmp"
   mv "$tmp" "$CAT_FILE"
 
-  echo "Catégorie \"$new_cat\" ajoutée."
+  echo "Category \"$new_cat\" added."
 }
 
 # 8) renamecateg : renommer une catégorie (dans TSV + fichier de catégories)
@@ -564,8 +578,8 @@ cmd_renamecateg() {
   local new="${2:-}"
 
   if [[ -z "$old" || -z "$new" ]]; then
-    echo "Erreur : il faut préciser l'ancienne et la nouvelle catégorie." >&2
-    echo "Utilisation : $(basename "$0") renamecateg <ancienne> <nouvelle>" >&2
+    echo "Error: you must specify old and new category." >&2
+    echo "Usage: $(basename "$0") renamecateg <old> <new>" >&2
     exit 1
   fi
 
@@ -578,13 +592,13 @@ cmd_renamecateg() {
       found_old=1
     fi
     if [[ "$c" == "$new" ]]; then
-      echo "Erreur : la catégorie \"$new\" existe déjà." >&2
+      echo "Error: category \"$new\" already exists." >&2
       exit 1
     fi
   done
 
   if (( ! found_old )); then
-    echo "Cette catégorie n'existe pas : $old" >&2
+    echo "This category does not exist: $old" >&2
     exit 1
   fi
 
@@ -621,7 +635,7 @@ cmd_renamecateg() {
   # Mettre à jour le fichier des catégories
   local tmp2
   tmp2="$(mktemp)"
-  printf '# Liste des catégories pour cmdmemo\n' >"$tmp2"
+  printf '# Category list for cmd-memo\n' >"$tmp2"
   for c in "${VALID_CATEGORIES[@]}"; do
     if [[ "$c" == "$old" ]]; then
       printf '%s\n' "$new"
@@ -631,7 +645,7 @@ cmd_renamecateg() {
   done | sort -u >>"$tmp2"
   mv "$tmp2" "$CAT_FILE"
 
-  echo "Catégorie \"$old\" renommée en \"$new\"."
+  echo "Category \"$old\" renamed to \"$new\"."
 }
 
 # 9) deletecateg : supprimer une catégorie (avec réaffectation)
@@ -641,8 +655,8 @@ cmd_deletecateg() {
 
   local to_delete="${1:-}"
   if [[ -z "$to_delete" ]]; then
-    echo "Erreur : il faut préciser la catégorie à supprimer." >&2
-    echo "Utilisation : $(basename "$0") deletecateg <categorie>" >&2
+    echo "Error: you must specify the category to delete." >&2
+    echo "Usage: $(basename "$0") deletecateg <category>" >&2
     exit 1
   fi
 
@@ -658,7 +672,7 @@ cmd_deletecateg() {
   done
 
   if (( ! found )); then
-    echo "Cette catégorie n'existe pas : $to_delete" >&2
+    echo "This category does not exist: $to_delete" >&2
     exit 1
   fi
 
@@ -683,24 +697,24 @@ cmd_deletecateg() {
   if (( used == 0 )); then
     local tmp3
     tmp3="$(mktemp)"
-    printf '# Liste des catégories pour cmdmemo\n' >"$tmp3"
+    printf '# Category list for cmd-memo\n' >"$tmp3"
     for c in "${OTHER_CATEGORIES[@]}"; do
       printf '%s\n' "$c"
     done | sort -u >>"$tmp3"
     mv "$tmp3" "$CAT_FILE"
 
-    echo "Catégorie \"$to_delete\" supprimée (aucune commande ne l'utilisait)."
+    echo "Category \"$to_delete\" removed (no command was using it)."
     return 0
   fi
 
   if (( ${#OTHER_CATEGORIES[@]} == 0 )); then
-    echo "Impossible de supprimer la dernière catégorie." >&2
+    echo "Cannot delete the last category." >&2
     exit 1
   fi
 
-  echo "Vous allez supprimer la catégorie \"$to_delete\"."
-  echo "Les commandes de cette catégorie doivent être réaffectées."
-  echo "Choisissez la catégorie de remplacement :"
+  echo "You are about to delete category \"$to_delete\"."
+  echo "Commands in this category must be reassigned."
+  echo "Choose the replacement category:"
 
   local i=1
   for c in "${OTHER_CATEGORIES[@]}"; do
@@ -709,10 +723,10 @@ cmd_deletecateg() {
   done
 
   local choice
-  read -rp "Numéro (1-${#OTHER_CATEGORIES[@]}) : " choice
+  read -rp "Number (1-${#OTHER_CATEGORIES[@]}): " choice
 
   if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#OTHER_CATEGORIES[@]} )); then
-    echo "Numéro invalide."
+    echo "Invalid number."
     exit 1
   fi
 
@@ -749,13 +763,13 @@ cmd_deletecateg() {
   # Mettre à jour le fichier des catégories (supprimer to_delete)
   local tmp2
   tmp2="$(mktemp)"
-  printf '# Liste des catégories pour cmdmemo\n' >"$tmp2"
+  printf '# Category list for cmd-memo\n' >"$tmp2"
   for c in "${OTHER_CATEGORIES[@]}"; do
     printf '%s\n' "$c"
   done | sort -u >>"$tmp2"
   mv "$tmp2" "$CAT_FILE"
 
-  echo "Catégorie \"$to_delete\" supprimée. Commandes réaffectées à \"$target\"."
+  echo "Category \"$to_delete\" removed. Commands reassigned to \"$target\"."
 }
 
 # --------------------------------------------------------------------
@@ -802,7 +816,7 @@ main() {
     deletecateg|-D)    cmd_deletecateg "$@";;
     help|-h|--help) usage;;
     *)
-      echo "Commande inconnue : $cmd" >&2
+      echo "Unknown command: $cmd" >&2
       usage
       exit 1
       ;;
@@ -810,4 +824,3 @@ main() {
 }
 
 main "$@"
-
